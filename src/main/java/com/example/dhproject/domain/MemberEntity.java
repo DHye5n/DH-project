@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
+
 
 
 @Entity
@@ -53,6 +53,7 @@ public class MemberEntity extends BaseTime implements UserDetails{
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Role role;
+
 
     @Builder
     public MemberEntity(String email, String password, String username, String phone,

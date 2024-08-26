@@ -1,9 +1,11 @@
 package com.example.dhproject.service;
 
+import com.example.dhproject.domain.EmailEntity;
 import com.example.dhproject.domain.MemberEntity;
 import com.example.dhproject.dto.request.MemberRequestRegisterDto;
 import com.example.dhproject.dto.response.MemberResponseDto;
 import com.example.dhproject.exception.MemberException;
+import com.example.dhproject.repository.EmailCodeRepository;
 import com.example.dhproject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,26 +20,21 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberService implements UserDetailsService {
 
-
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailCodeRepository emailCodeRepository;
+    private final EmailService emailService;
 
     @Transactional
     public MemberEntity register(MemberRequestRegisterDto dto) {
         if (memberRepository.existsByEmail(dto.getEmail())) {
             log.error("이미 사용중인 이메일입니다. {}", dto.getEmail());
             throw new MemberException("이미 사용중인 이메일입니다.", HttpStatus.CONFLICT);
-        }
-
-        if (memberRepository.existsByUsername(dto.getUsername())) {
-            log.error("이미 사용중인 사용자 이름입니다. {}", dto.getUsername());
-            throw new MemberException("이미 사용중인 사용자 이름입니다.", HttpStatus.CONFLICT);
         }
 
         if (!dto.isPasswordMatching()) {
@@ -84,7 +81,7 @@ public class MemberService implements UserDetailsService {
 
     @Transactional
     public boolean checkUsername(String username) {
-        return memberRepository.existsByUsername(username);
+        return memberRepository.findByUsername(username).isPresent();
     }
 
     @Override

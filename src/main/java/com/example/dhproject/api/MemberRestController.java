@@ -1,8 +1,9 @@
 package com.example.dhproject.api;
 
-import com.example.dhproject.domain.MemberEntity;
 import com.example.dhproject.dto.request.MemberRequestRegisterDto;
 import com.example.dhproject.dto.response.MemberResponseDto;
+import com.example.dhproject.service.EmailCodeService;
+import com.example.dhproject.service.EmailService;
 import com.example.dhproject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,18 +14,32 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members")
 @Slf4j
 public class MemberRestController {
 
-
     private final MemberService memberService;
+    private final EmailCodeService emailCodeService;
+    private final EmailService emailService;
+
+    @PostMapping("/send-verification-code")
+    public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
+        String code = emailCodeService.generateVerificationCode();
+        emailCodeService.saveVerificationCode(email, code);
+        emailService.sendVerificationEmail(email, code);
+        return ResponseEntity.ok("인증 코드가 발송되었습니다.");
+    }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid MemberRequestRegisterDto dto) {
+        // 이메일 인증 코드 검증
+        boolean isCodeValid = emailCodeService.verifyCode(dto.getEmail(), dto.getVerificationCode());
+        if (!isCodeValid) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 이메일 인증 코드입니다.");
+        }
+
         memberService.register(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
     }

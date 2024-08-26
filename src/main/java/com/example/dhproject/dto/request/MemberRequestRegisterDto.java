@@ -46,9 +46,11 @@ public class MemberRequestRegisterDto {
 
     private Role role = Role.USER;
 
+    private String verificationCode;
+
     @Builder
     public MemberRequestRegisterDto(String email, String password, String passwordCheck, String username, String phone,
-                                    String zonecode, String address, String addressDetail, Role role) {
+                                    String zonecode, String address, String addressDetail, Role role, String verificationCode) {
         this.email = email;
         this.password = password;
         this.passwordCheck = passwordCheck;
@@ -58,6 +60,7 @@ public class MemberRequestRegisterDto {
         this.address = address;
         this.addressDetail = addressDetail;
         this.role = role != null ? role : Role.USER;
+        this.verificationCode = verificationCode;
     }
 
     public boolean isPasswordMatching() {
