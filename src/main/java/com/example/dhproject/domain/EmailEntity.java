@@ -31,7 +31,7 @@ public class EmailEntity {
     public EmailEntity(String email, String verificationCode, LocalDateTime expiryDate) {
         this.email = email;
         this.verificationCode = verificationCode;
-        this.expiryDate = LocalDateTime.now().plusMinutes(10);
+        this.expiryDate = expiryDate;
     }
 
     public boolean isExpired() {

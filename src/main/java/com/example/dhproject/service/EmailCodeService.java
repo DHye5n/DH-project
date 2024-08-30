@@ -16,6 +16,7 @@ import java.util.Random;
 public class EmailCodeService {
 
     private final EmailCodeRepository emailCodeRepository;
+    private final EmailService emailService;
     private static final int CODE_LENGTH = 6;
 
     public String generateVerificationCode() {
@@ -40,5 +41,17 @@ public class EmailCodeService {
         }
         EmailEntity emailEntity = codeEntityOpt.get();
         return !emailEntity.isExpired() && emailEntity.getVerificationCode().equals(code);
+    }
+
+    public void resendVerificationCode(String email) {
+        Optional<EmailEntity> emailEntityOpt = emailCodeRepository.findByEmail(email);
+
+        if (emailEntityOpt.isPresent() && !emailEntityOpt.get().isExpired()) {
+            throw new IllegalStateException("기존 인증 코드가 아직 유효합니다.");
+        }
+
+        String code = generateVerificationCode();
+        saveVerificationCode(email, code);
+        emailService.sendVerificationEmail(email, code);
     }
 }

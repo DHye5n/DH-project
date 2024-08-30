@@ -1,11 +1,9 @@
 package com.example.dhproject.service;
 
-import com.example.dhproject.domain.EmailEntity;
 import com.example.dhproject.domain.MemberEntity;
 import com.example.dhproject.dto.request.MemberRequestRegisterDto;
 import com.example.dhproject.dto.response.MemberResponseDto;
 import com.example.dhproject.exception.MemberException;
-import com.example.dhproject.repository.EmailCodeRepository;
 import com.example.dhproject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +25,13 @@ public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailCodeRepository emailCodeRepository;
-    private final EmailService emailService;
+    private final EmailCodeService emailCodeService;
 
     @Transactional
     public MemberEntity register(MemberRequestRegisterDto dto) {
+        // 이메일 인증 코드 검증
+        validateVerificationCode(dto.getEmail(), dto.getVerificationCode());
+
         if (memberRepository.existsByEmail(dto.getEmail())) {
             log.error("이미 사용중인 이메일입니다. {}", dto.getEmail());
             throw new MemberException("이미 사용중인 이메일입니다.", HttpStatus.CONFLICT);
@@ -55,6 +55,14 @@ public class MemberService implements UserDetailsService {
         );
 
         return memberRepository.save(member);
+    }
+
+    private void validateVerificationCode(String email, String code) {
+        boolean isCodeValid = emailCodeService.verifyCode(email, code);
+        if (!isCodeValid) {
+            log.error("잘못된 이메일 인증 코드입니다. {}", email);
+            throw new MemberException("잘못된 이메일 인증 코드입니다.", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Transactional

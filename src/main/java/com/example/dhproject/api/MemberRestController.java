@@ -1,7 +1,9 @@
 package com.example.dhproject.api;
 
 import com.example.dhproject.dto.request.MemberRequestRegisterDto;
+import com.example.dhproject.dto.response.ApiResponseDto;
 import com.example.dhproject.dto.response.MemberResponseDto;
+import com.example.dhproject.exception.MemberException;
 import com.example.dhproject.service.EmailCodeService;
 import com.example.dhproject.service.EmailService;
 import com.example.dhproject.service.MemberService;
@@ -25,23 +27,26 @@ public class MemberRestController {
     private final EmailService emailService;
 
     @PostMapping("/send-verification-code")
-    public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
-        String code = emailCodeService.generateVerificationCode();
-        emailCodeService.saveVerificationCode(email, code);
-        emailService.sendVerificationEmail(email, code);
-        return ResponseEntity.ok("인증 코드가 발송되었습니다.");
+    public ResponseEntity<ApiResponseDto> sendVerificationCode(@RequestParam String email) {
+        try {
+            emailCodeService.resendVerificationCode(email);
+            return ResponseEntity.ok(new ApiResponseDto(true, "새로운 인증 코드가 발송되었습니다.", null));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponseDto(false, e.getMessage(), null));
+        }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody @Valid MemberRequestRegisterDto dto) {
-        // 이메일 인증 코드 검증
-        boolean isCodeValid = emailCodeService.verifyCode(dto.getEmail(), dto.getVerificationCode());
-        if (!isCodeValid) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 이메일 인증 코드입니다.");
+    public ResponseEntity<ApiResponseDto> register(@RequestBody @Valid MemberRequestRegisterDto dto) {
+        try {
+            memberService.register(dto);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponseDto(true, "회원가입이 완료되었습니다.", null));
+        } catch (MemberException e) {
+            return ResponseEntity.status(e.getStatus())
+                    .body(new ApiResponseDto(false, e.getMessage(), null));
         }
-
-        memberService.register(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body("회원가입이 완료되었습니다.");
     }
 
     @GetMapping
@@ -63,11 +68,9 @@ public class MemberRestController {
     }
 
     @GetMapping("/username/{username}/exists")
-    public ResponseEntity<String> checkUsernameExists(@PathVariable String username) {
+    public ResponseEntity<ApiResponseDto> checkUsernameExists(@PathVariable String username) {
         boolean exists = memberService.checkUsername(username);
-        if (exists) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 이름이 이미 사용 중입니다.");
-        }
-        return ResponseEntity.ok("사용자 이름이 사용 가능합니다.");
+        String message = exists ? "사용자 이름이 이미 사용 중입니다." : "사용자 이름이 사용 가능합니다.";
+        return ResponseEntity.ok(new ApiResponseDto(!exists, message, null));
     }
 }
