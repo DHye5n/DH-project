@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
@@ -34,24 +35,33 @@ public class EmailCodeService {
         emailCodeRepository.save(emailEntity);
     }
 
+    @Transactional
     public boolean verifyCode(String email, String code) {
-        Optional<EmailEntity> codeEntityOpt = emailCodeRepository.findByEmail(email);
+        Optional<EmailEntity> codeEntityOpt = emailCodeRepository.findByEmailAndVerificationCode(email, code);
         if (codeEntityOpt.isEmpty()) {
+            log.warn("이메일 {}에 대한 인증 코드가 존재하지 않거나 코드가 일치하지 않습니다.", email);
             return false;
         }
+
         EmailEntity emailEntity = codeEntityOpt.get();
-        return !emailEntity.isExpired() && emailEntity.getVerificationCode().equals(code);
-    }
+        boolean isExpired = emailEntity.isExpired();
+        boolean isCodeValid = emailEntity.isCodeValid(code);
 
-    public void resendVerificationCode(String email) {
-        Optional<EmailEntity> emailEntityOpt = emailCodeRepository.findByEmail(email);
+        log.info("검증 중: 이메일 = {}, 입력된 코드 = {}, 저장된 코드 = {}, 만료일 = {}, 코드 유효 여부 = {}, 만료 여부 = {}",
+                email, code, emailEntity.getVerificationCode(), emailEntity.getExpiryDate(), isCodeValid, isExpired);
 
-        if (emailEntityOpt.isPresent() && !emailEntityOpt.get().isExpired()) {
-            throw new IllegalStateException("기존 인증 코드가 아직 유효합니다.");
+        if (isExpired || !isCodeValid) {
+            log.warn("이메일 {}의 인증 코드가 유효하지 않거나 만료되었습니다.", email);
         }
 
+        return !isExpired && isCodeValid;
+    }
+
+
+    public void sendNewVerificationCode(String email) {
         String code = generateVerificationCode();
         saveVerificationCode(email, code);
         emailService.sendVerificationEmail(email, code);
     }
+
 }

@@ -55,6 +55,8 @@ public class MemberEntity extends BaseTime implements UserDetails{
     private Role role;
 
 
+
+
     @Builder
     public MemberEntity(String email, String password, String username, String phone,
                         String zonecode, String address, String addressDetail, Role role) {

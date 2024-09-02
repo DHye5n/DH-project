@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -47,6 +48,7 @@ public class MemberRequestRegisterDto {
 
     private Role role = Role.USER;
 
+    @Column(name = "vertification_code")
     private String verificationCode;
 
     @Builder

@@ -18,7 +18,7 @@ public class SecurityConfig {
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
                                 .antMatchers("/css/**", "/js/user/**", "/images/**", "/plugins/**").permitAll()
-                                .antMatchers("/api/members/**", "/register").permitAll()
+                                .antMatchers("/api/members/**", "/register", "/api/members/send-verification-code").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin ->
@@ -29,7 +29,7 @@ public class SecurityConfig {
                 .logout(LogoutConfigurer::permitAll
                 )
                 .csrf(csrf -> csrf
-                        .ignoringAntMatchers("/api/members/register")
+                        .ignoringAntMatchers("/api/members/register", "/api/members/send-verification-code", "/api/members/verify-code")
                 );
         return http.build();
     }

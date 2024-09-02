@@ -1,5 +1,6 @@
 package com.example.dhproject.api;
 
+import com.example.dhproject.dto.request.EmailCodeRequestDto;
 import com.example.dhproject.dto.request.MemberRequestRegisterDto;
 import com.example.dhproject.dto.response.ApiResponseDto;
 import com.example.dhproject.dto.response.MemberResponseDto;
@@ -28,13 +29,41 @@ public class MemberRestController {
     @PostMapping("/send-verification-code")
     public ResponseEntity<ApiResponseDto> sendVerificationCode(@RequestParam String email) {
         try {
-            emailCodeService.resendVerificationCode(email);
+            emailCodeService.sendNewVerificationCode(email); // 무조건 새로운 인증 코드 생성 및 전송
             return ResponseEntity.ok(new ApiResponseDto(true, "새로운 인증 코드가 발송되었습니다.", null));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponseDto(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponseDto(false, "인증 코드 전송에 실패했습니다.", null));
         }
     }
+
+    @PostMapping("/verify-code")
+    public ResponseEntity<ApiResponseDto> verifyCode(@RequestBody EmailCodeRequestDto dto) {
+        try {
+            boolean isCodeValid = emailCodeService.verifyCode(dto.getEmail(), dto.getVerificationCode());
+            if (isCodeValid) {
+                return ResponseEntity.ok(new ApiResponseDto(true, "인증 코드가 확인되었습니다.", null));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponseDto(false, "인증 코드가 일치하지 않습니다.", null));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponseDto(false, "인증 코드 확인 중 오류가 발생했습니다.", null));
+        }
+    }
+
+
+//    @PostMapping("/resend-verification-code")
+//    public ResponseEntity<ApiResponseDto> resendVerificationCode(@RequestParam String email) {
+//        try {
+//            emailCodeService.resendVerificationCode(email);
+//            return ResponseEntity.ok(new ApiResponseDto(true, "새로운 인증 코드가 발송되었습니다.", null));
+//        } catch (IllegalStateException e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(new ApiResponseDto(false, e.getMessage(), null));
+//        }
+//    }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponseDto> register(@RequestBody @Valid MemberRequestRegisterDto dto) {

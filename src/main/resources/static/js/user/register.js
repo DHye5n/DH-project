@@ -2,13 +2,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const form = document.getElementById('form');
     const btnJoin = document.getElementById('btnJoin');
     const btnCheckEmail = document.getElementById('btnCheckEmail');
-    const btnVerifyCode = document.getElementById('btnVerifyCode');
     const btnCheckId = document.getElementById('btnCheckId');
+    const btnVerifyCode = document.getElementById('btnVerifyCode');
 
     // Handle form submission
     btnJoin.addEventListener('click', function() {
         if (!validateForm()) {
-            return; // Exit if validation fails
+            return;
         }
 
         // Collect form data and convert to JSON
@@ -16,14 +16,21 @@ document.addEventListener("DOMContentLoaded", function() {
         const jsonData = {};
         formData.forEach((value, key) => { jsonData[key] = value; });
 
-        fetch(form.action, {
+        jsonData.verificationCode = document.getElementById('verification_code').value;
+
+        fetch('/api/members/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json' // Set content type to JSON
             },
             body: JSON.stringify(jsonData) // Convert JSON object to string
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
                 if (data.success) {
                     alert("회원가입이 완료되었습니다.");
@@ -38,9 +45,126 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     });
 
+    // Email verification and sending code
+    btnCheckEmail.addEventListener('click', function() {
+        const email = document.getElementById('email').value;
+        const emailCheckMessage = document.getElementById('emailCheckMessage');
+
+        if (!validateEmail(email)) {
+            emailCheckMessage.textContent = "";
+            emailCheckMessage.classList.add('d-none');
+            alert("이메일 형식이 올바르지 않습니다.");
+            return;
+        }
+
+        // Check email availability
+        fetch(`/api/members/check-email?email=${encodeURIComponent(email)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    emailCheckMessage.textContent = "이메일을 사용할 수 있습니다.";
+                    emailCheckMessage.style.color = "green";
+                    emailCheckMessage.classList.remove('d-none');
+
+                    // Send verification code if email is available
+                    sendVerificationCode(email);
+                } else {
+                    emailCheckMessage.textContent = "이미 사용 중인 이메일입니다.";
+                    emailCheckMessage.style.color = "red";
+                    emailCheckMessage.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+    });
+
+    // Send verification code to the email
+    function sendVerificationCode(email) {
+        fetch(`/api/members/send-verification-code?email=${encodeURIComponent(email)}`, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    alert("인증 코드가 발송되었습니다.");
+                } else {
+                    alert("인증 코드 발송에 실패했습니다: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("인증 코드 발송 중 오류가 발생했습니다.");
+            });
+    }
+
+    // Verify the code entered by the user
+    btnVerifyCode.addEventListener('click', function() {
+        const email = document.getElementById('email').value;
+        const verificationCode = document.getElementById('verification_code').value;
+        const verificationCodeMessage = document.getElementById('verificationCodeMessage');
+
+        console.log("Email:", email);
+        console.log("Verification Code:", verificationCode);
+
+        // Validate that the verification code is not empty
+        if (!verificationCode) {
+            verificationCodeMessage.textContent = "인증 코드를 입력해주세요.";
+            verificationCodeMessage.style.color = "red";
+            verificationCodeMessage.classList.remove('d-none');
+            return;
+        }
+
+        // Create the request body
+        const requestBody = {
+            email: email,
+            verificationCode: verificationCode
+        };
+
+        fetch(`/api/members/verify-code`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // Set content type to JSON
+            },
+            body: JSON.stringify(requestBody) // Convert the request body to JSON string
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error(`Network response was not ok: ${response.statusText}. Server response: ${text}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    verificationCodeMessage.textContent = "인증 코드가 확인되었습니다.";
+                    verificationCodeMessage.style.color = "green";
+                    verificationCodeMessage.classList.remove('d-none');
+                } else {
+                    verificationCodeMessage.textContent = "인증 코드가 일치하지 않습니다.";
+                    verificationCodeMessage.style.color = "red";
+                    verificationCodeMessage.classList.remove('d-none');
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                verificationCodeMessage.textContent = "인증 코드 확인 중 오류가 발생했습니다.";
+                verificationCodeMessage.style.color = "red";
+                verificationCodeMessage.classList.remove('d-none');
+            });
+    });
+
+
     // Validate the form fields
     function validateForm() {
         const email = document.getElementById('email').value;
+        const verificationCode = document.getElementById('verification_code').value;
         const password = document.getElementById('password').value;
         const passwordCheck = document.getElementById('passwordCheck').value;
         const username = document.getElementById('username').value;
@@ -49,12 +173,17 @@ document.addEventListener("DOMContentLoaded", function() {
         const address = document.getElementById('address').value;
         const addressDetail = document.getElementById('addressDetail').value;
 
-        console.log("Validating form: ", { email, password, passwordCheck, username, phone, zonecode, address, addressDetail });
+        console.log("Validating form: ", { email, verificationCode, password, passwordCheck, username, phone, zonecode, address, addressDetail });
 
         // Email validation
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!email || !emailPattern.test(email)) {
+        if (!validateEmail(email)) {
             alert("이메일 형식이 올바르지 않습니다.");
+            return false;
+        }
+
+        // Verification code validation
+        if (!verificationCode) {
+            alert("인증 코드를 입력해주세요.");
             return false;
         }
 
@@ -92,36 +221,11 @@ document.addEventListener("DOMContentLoaded", function() {
         return true;
     }
 
-    // Email verification check
-    btnCheckEmail.addEventListener('click', function() {
-        const email = document.getElementById('email').value;
+    // Validate email format
+    function validateEmail(email) {
         const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const emailCheckMessage = document.getElementById('emailCheckMessage');
-
-        // Clear message if email is invalid
-        if (!emailPattern.test(email)) {
-            emailCheckMessage.textContent = "";
-            emailCheckMessage.classList.add('d-none');
-            alert("이메일 형식이 올바르지 않습니다.");
-            return;
-        }
-
-        // API call to check email availability
-        fetch(`/api/members/check-email?email=${encodeURIComponent(email)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    emailCheckMessage.textContent = "이메일을 사용할 수 있습니다.";
-                } else {
-                    emailCheckMessage.textContent = "이미 사용 중인 이메일입니다.";
-                    emailCheckMessage.style.color = "red";
-                }
-                emailCheckMessage.classList.remove('d-none');
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-    });
+        return emailPattern.test(email);
+    }
 
     // Check username availability
     btnCheckId.addEventListener('click', function() {

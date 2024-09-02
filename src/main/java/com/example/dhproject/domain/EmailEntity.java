@@ -37,4 +37,8 @@ public class EmailEntity {
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiryDate);
     }
+
+    public boolean isCodeValid(String code) {
+        return this.verificationCode.equals(code);
+    }
 }

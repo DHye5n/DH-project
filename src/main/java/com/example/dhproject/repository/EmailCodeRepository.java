@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface EmailCodeRepository extends JpaRepository<EmailEntity, Long> {
 
     Optional<EmailEntity> findByEmail(String email);
+
+    Optional<EmailEntity> findByEmailAndVerificationCode(String email, String verificationCode);
 }

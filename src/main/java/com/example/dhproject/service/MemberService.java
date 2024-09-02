@@ -30,8 +30,9 @@ public class MemberService implements UserDetailsService {
 
     @Transactional
     public ApiResponseDto register(MemberRequestRegisterDto dto) {
+        log.info("회원가입 요청 - 이메일: {}, 코드: {}", dto.getEmail(), dto.getVerificationCode());
         // 이메일 인증 코드 검증
-//        validateVerificationCode(dto.getEmail(), dto.getVerificationCode());
+        validateVerificationCode(dto.getEmail(), dto.getVerificationCode());
 
         if (memberRepository.existsByEmail(dto.getEmail())) {
             log.error("이미 사용중인 이메일입니다. {}", dto.getEmail());
@@ -59,13 +60,14 @@ public class MemberService implements UserDetailsService {
         return new ApiResponseDto(true, "회원가입이 완료되었습니다.", null);
     }
 
-//    private void validateVerificationCode(String email, String code) {
-//        boolean isCodeValid = emailCodeService.verifyCode(email, code);
-//        if (!isCodeValid) {
-//            log.error("잘못된 이메일 인증 코드입니다. {}", email);
-//            throw new MemberException("잘못된 이메일 인증 코드입니다.", HttpStatus.BAD_REQUEST);
-//        }
-//    }
+    private void validateVerificationCode(String email, String code) {
+        log.info("회원가입 중 이메일: {}, 코드: {}", email, code);
+        boolean isCodeValid = emailCodeService.verifyCode(email, code);
+        if (!isCodeValid) {
+            log.error("잘못된 이메일 인증 코드입니다. 이메일: {}, 코드: {}", email, code);
+            throw new MemberException("잘못된 이메일 인증 코드입니다.", HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @Transactional
     public ApiResponseDto findByEmail(String email) {
