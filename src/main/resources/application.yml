@@ -35,11 +35,9 @@ spring:
 
 
   thymeleaf:
+    prefix : classpath:/templates/
+    suffix: .html
     cache: false
-#    prefix: classpath:/templates
-#    suffix: .html
-#    mode: HTML5
-#    encoding: UTF-8
 
 logging:
   level:

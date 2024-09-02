@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head th:replace="layouts/fragments/head_not_login :: headNotLoginFragment"></head>
+<body>
+<div>
+	<!--begin::Page-->
+	<section id="page_blank">
+		<th:block layout:fragment="content"></th:block>
+	</section>
+	<!--end::Page-->
+</div>
+<th:block th:replace="layouts/fragments/include_js :: includeJsFragment"></th:block>
+</body>
+</html>

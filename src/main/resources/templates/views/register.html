@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorate="~{layouts/lo_blank}">
+
+<th:block layout:fragment="content">
+    <form id="form" name="form" method="post" th:action="@{/api/members/register}">
+        <div class="membership-header">
+            <h1><a href="/login">동현 프로젝트</a></h1>
+        </div>
+        <div class="membership">
+            <div class="inner-box">
+                <div class="member-tit">
+                    <h2 data-lg="가입 정보">가입 정보</h2>
+                    <p class="essential">필수</p>
+                </div>
+                <div class="member-input">
+                    <ul class="input-list">
+                        <li>
+                            <dl>
+                                <dt>이메일</dt>
+                                <dd>
+                                    <input type="email" id="email" name="email" class="form-keyword" autocomplete="off" required>
+                                    <button id="btnCheckEmail" type="button" class="btn-id-confirm">메일인증 </button>
+                                    <p id="emailCheckMessage" class="alert-desc d-none">이미 사용 중인 이메일입니다.</p>
+                                    <p id="verificationCodeFailMessage" class="alert-desc d-none">이메일 인증 코드가 발송되었습니다.</p>
+                                </dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt>이메일 인증 코드</dt>
+                                <dd>
+                                    <input type="text" id="verification_code" name="verification_code" class="form-keyword" required>
+                                    <button id="btnVerifyCode" type="button" class="btn-id-confirm">인증확인</button>
+                                    <p id="verificationCodeMessage" class="alert-desc d-none">인증 코드가 일치하지 않습니다.</p>
+                                </dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt>패스워드</dt>
+                                <dd>
+                                    <input type="password" id="password" name="password" class="form-keyword" autocomplete="off" required>
+                                </dd>
+                            </dl>
+                            <dl>
+                                <dt>비밀번호 확인</dt>
+                                <dd>
+                                    <input type="password" id="passwordCheck" name="passwordCheck" class="form-keyword" autocomplete="off" required>
+                                </dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt>아이디</dt>
+                                <dd>
+                                    <input type="text" id="username" name="username" class="form-keyword" required>
+                                    <button id="btnCheckId" type="button" class="btn-id-confirm">중복체크</button>
+                                    <p id="idCheckMessage" class="alert-desc d-none">이미 사용 중인 아이디입니다.</p>
+                                </dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt>연락처</dt>
+                                <dd>
+                                    <input type="text" id="phone" name="phone" class="form-keyword" required>
+                                </dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt>우편번호</dt>
+                                <dd>
+                                    <input type="text" id="zonecode" name="zonecode" placeholder="우편번호" class="form-keyword" maxlength="13" required>
+                                    <button id="postButton" type="button" class="btn-id-confirm" onclick="kakaopost()">주소찾기</button>
+                                </dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt>주소</dt>
+                                <dd>
+                                    <input type="text" id="address" name="address" placeholder="주소" class="form-keyword" required>
+                                </dd>
+                            </dl>
+                        </li>
+                        <li>
+                            <dl>
+                                <dt>상세주소</dt>
+                                <dd>
+                                    <input type="text" id="addressDetail" name="addressDetail" placeholder="상세주소" class="form-keyword" required>
+                                </dd>
+                            </dl>
+                        </li>
+                        <div class="member-btn">
+                            <button id="btnJoin" type="button" class="btn-complete">가입</button>
+                            <a href="/login.do" class="btn-dark1">이전</a>
+                        </div>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+        <script>
+            function kakaopost() {
+                new daum.Postcode({
+                    oncomplete: function (data) {
+                        var addr = ''; // 주소 변수
+
+                        // 사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+                        if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                            addr = data.roadAddress;
+                        } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                            addr = data.jibunAddress;
+                        }
+
+                        // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                        document.getElementById("zonecode").value = data.zonecode;
+                        document.getElementById("address").value = addr;
+                        // 커서를 상세주소 필드로 이동한다.
+                        document.getElementById("addressDetail").focus();
+                    }
+                }).open();
+            }
+
+
+        </script>
+    </form>
+</th:block>
+
+<th:block layout:fragment="addScript">
+    <script src="/js/user/register.js" type="text/javascript"></script>
+</th:block>
+
+</html>

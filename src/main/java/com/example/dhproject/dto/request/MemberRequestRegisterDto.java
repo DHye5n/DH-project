@@ -29,6 +29,7 @@ public class MemberRequestRegisterDto {
     private String passwordCheck;
 
     @NotBlank
+    @Size(min = 3, max = 10)
     private String username;
 
     @NotBlank

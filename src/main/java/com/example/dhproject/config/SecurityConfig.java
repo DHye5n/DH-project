@@ -3,6 +3,7 @@ package com.example.dhproject.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,7 +17,8 @@ public class SecurityConfig {
         http
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .antMatchers("/api/members/**").permitAll()
+                                .antMatchers("/css/**", "/js/user/**", "/images/**", "/plugins/**").permitAll()
+                                .antMatchers("/api/members/**", "/register").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin ->
