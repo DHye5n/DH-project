@@ -8,6 +8,10 @@ import com.example.dhproject.exception.ClientErrorException;
 import com.example.dhproject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -87,8 +91,12 @@ public class MemberService implements UserDetailsService {
     }
 
 
-    public ApiResponseDto getAllMembers() {
-        List<MemberEntity> members = memberRepository.findAll();
+    public ApiResponseDto getAllMembers(int page, int size, String sortBy, String sortOrder) {
+
+        Pageable pageable = PageRequest.of(page, size,
+                sortOrder.equalsIgnoreCase("desc") ? Sort.by(sortBy).descending() : Sort.by(sortBy).ascending());
+
+        Page<MemberEntity> members = memberRepository.findAll(pageable);
         List<MemberResponseDto> memberDtos = members.stream()
                 .map(MemberResponseDto::fromEntity)
                 .collect(Collectors.toList());

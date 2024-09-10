@@ -18,8 +18,13 @@ public class AdminMemberRestController {
 
 
     @GetMapping
-    public ResponseEntity<ApiResponseDto> getAllMembers() {
-        ApiResponseDto response = memberService.getAllMembers();
+    public ResponseEntity<ApiResponseDto> getAllMembers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "username") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder
+    ) {
+        ApiResponseDto response = memberService.getAllMembers(page, size, sortBy, sortOrder);
         return ResponseEntity.ok(response);
     }
 

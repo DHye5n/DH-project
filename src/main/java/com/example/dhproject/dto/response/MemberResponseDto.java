@@ -4,6 +4,7 @@ import com.example.dhproject.domain.MemberEntity;
 import lombok.Builder;
 import lombok.Getter;
 
+
 @Getter
 public class MemberResponseDto {
 
@@ -14,11 +15,13 @@ public class MemberResponseDto {
 
 
     @Builder
-    public MemberResponseDto(Long memberId, String email, String username, String phone) {
+    public MemberResponseDto(
+            Long memberId, String email, String username, String phone) {
         this.memberId = memberId;
         this.email = email;
         this.username = username;
         this.phone = phone;
+
 
     }
 
