@@ -46,7 +46,7 @@ public class MemberRequestRegisterDto {
     @NotBlank
     private String addressDetail;
 
-    private Role role = Role.USER;
+    private Role role = Role.ROLE_USER;
 
     @Column(name = "vertification_code")
     private String verificationCode;
@@ -62,7 +62,7 @@ public class MemberRequestRegisterDto {
         this.zonecode = zonecode;
         this.address = address;
         this.addressDetail = addressDetail;
-        this.role = role != null ? role : Role.USER;
+        this.role = role != null ? role : Role.ROLE_USER;
         this.verificationCode = verificationCode;
     }
 

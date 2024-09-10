@@ -5,8 +5,8 @@ import com.example.dhproject.repository.EmailCodeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
@@ -14,6 +14,7 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class EmailCodeService {
 
     private final EmailCodeRepository emailCodeRepository;
@@ -26,6 +27,7 @@ public class EmailCodeService {
         return String.format("%0" + CODE_LENGTH + "d", code);
     }
 
+    @Transactional
     public void saveVerificationCode(String email, String verificationCode) {
         EmailEntity emailEntity = EmailEntity.builder()
                 .email(email)
@@ -57,7 +59,7 @@ public class EmailCodeService {
         return !isExpired && isCodeValid;
     }
 
-
+    @Transactional
     public void sendNewVerificationCode(String email) {
         String code = generateVerificationCode();
         saveVerificationCode(email, code);

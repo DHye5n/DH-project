@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         jsonData.verificationCode = document.getElementById('verification_code').value;
 
-        fetch('/api/members/register', {
+        fetch('/api/public/members/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json' // Set content type to JSON
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         // Check email availability
-        fetch(`/api/members/check-email?email=${encodeURIComponent(email)}`)
+        fetch(`/api/public/members/check-email?email=${encodeURIComponent(email)}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Send verification code to the email
     function sendVerificationCode(email) {
-        fetch(`/api/members/send-verification-code?email=${encodeURIComponent(email)}`, {
+        fetch(`/api/public/members/send-verification-code?email=${encodeURIComponent(email)}`, {
             method: 'POST'
         })
             .then(response => {
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function() {
             verificationCode: verificationCode
         };
 
-        fetch(`/api/members/verify-code`, {
+        fetch(`/api/public/members/verify-code`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json' // Set content type to JSON
@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function() {
     btnCheckId.addEventListener('click', function() {
         const username = document.getElementById('username').value;
 
-        fetch(`/api/members/username/${encodeURIComponent(username)}/exists`)
+        fetch(`/api/public/members/username/${encodeURIComponent(username)}/exists`)
             .then(response => response.json())
             .then(data => {
                 const idCheckMessage = document.getElementById('idCheckMessage');

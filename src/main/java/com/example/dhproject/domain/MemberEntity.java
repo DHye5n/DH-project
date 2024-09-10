@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -18,7 +19,9 @@ import java.util.Collections;
 
 @Entity
 @Getter
-@Table(name = "member")
+@Table(name = "member",
+    indexes = {@Index(name = "member_username_idx", columnList = "username", unique = true)}
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member SET deleted_date = CURRENT_TIMESTAMP WHERE member_id = ?")
 @Where(clause = "deleted_date IS NULL")
@@ -67,13 +70,13 @@ public class MemberEntity extends BaseTime implements UserDetails{
         this.zonecode = zonecode;
         this.address = address;
         this.addressDetail = addressDetail;
-        this.role = role != null ? role : Role.USER;
+        this.role = role != null ? role : Role.ROLE_USER;
     }
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(role);
+        return Collections.singletonList(new SimpleGrantedAuthority(role.getAuthority()));
     }
 
     @Override
