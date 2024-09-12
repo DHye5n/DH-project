@@ -4,12 +4,12 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class ClientErrorException extends RuntimeException{
+public class ErrorException extends RuntimeException{
 
 
     private final HttpStatus status;
 
-    public ClientErrorException(String message, HttpStatus status) {
+    public ErrorException(String message, HttpStatus status) {
         super(message);
         this.status = status;
     }

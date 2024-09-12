@@ -4,7 +4,7 @@ import com.example.dhproject.domain.MemberEntity;
 import com.example.dhproject.dto.request.MemberRequestRegisterDto;
 import com.example.dhproject.dto.response.ApiResponseDto;
 import com.example.dhproject.dto.response.MemberResponseDto;
-import com.example.dhproject.exception.ClientErrorException;
+import com.example.dhproject.exception.ErrorException;
 import com.example.dhproject.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,12 +42,12 @@ public class MemberService implements UserDetailsService {
 
         if (memberRepository.existsByEmail(dto.getEmail())) {
             log.error("이미 사용중인 이메일입니다. {}", dto.getEmail());
-            throw new ClientErrorException("이미 사용중인 이메일입니다.", HttpStatus.CONFLICT);
+            throw new ErrorException("이미 사용중인 이메일입니다.", HttpStatus.CONFLICT);
         }
 
         if (!dto.isPasswordMatching()) {
             log.error("비밀번호가 일치하지 않습니다. {}", dto.getPassword());
-            throw new ClientErrorException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
+            throw new ErrorException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
@@ -72,14 +72,14 @@ public class MemberService implements UserDetailsService {
         boolean isCodeValid = emailCodeService.verifyCode(email, code);
         if (!isCodeValid) {
             log.error("잘못된 이메일 인증 코드입니다. 이메일: {}, 코드: {}", email, code);
-            throw new ClientErrorException("잘못된 이메일 인증 코드입니다.", HttpStatus.BAD_REQUEST);
+            throw new ErrorException("잘못된 이메일 인증 코드입니다.", HttpStatus.BAD_REQUEST);
         }
     }
 
 
     public ApiResponseDto findByEmail(String email) {
         MemberEntity member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new ClientErrorException("해당 이메일로 회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ErrorException("해당 이메일로 회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
         return new ApiResponseDto(true, "회원 정보가 조회되었습니다.", MemberResponseDto.fromEntity(member));
     }
 
@@ -106,7 +106,7 @@ public class MemberService implements UserDetailsService {
 
     public ApiResponseDto getMemberById(Long memberId) {
         MemberEntity member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ClientErrorException("해당 ID로 회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ErrorException("해당 ID로 회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
         return new ApiResponseDto(true, "회원 정보가 조회되었습니다.", MemberResponseDto.fromEntity(member));
     }
 

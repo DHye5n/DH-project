@@ -1,5 +1,7 @@
 package com.example.dhproject.config;
 
+import com.example.dhproject.config.jwt.JwtAuthFilter;
+import com.example.dhproject.config.jwt.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @Configuration
@@ -18,10 +21,13 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 
+    private final JwtAuthFilter jwtAuthFilter;
+    private final JwtExceptionFilter jwtExceptionFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
+
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
                                 .antMatchers("/css/**", "/js/user/**", "/images/**", "/plugins/**").permitAll()
@@ -34,9 +40,10 @@ public class SecurityConfig {
                                 .antMatchers("/api/admin/members/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf().disable()
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtExceptionFilter, jwtAuthFilter.getClass())
                 .formLogin(formLogin ->
                         formLogin
                                 .loginPage("/login") // Custom login page

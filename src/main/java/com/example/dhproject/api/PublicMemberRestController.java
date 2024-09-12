@@ -37,7 +37,7 @@ public class PublicMemberRestController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponseDto> register(@RequestBody @Valid MemberRequestRegisterDto dto) {
+    public ResponseEntity<ApiResponseDto> register(@Valid @RequestBody MemberRequestRegisterDto dto) {
         ApiResponseDto response = memberService.register(dto);
         return ResponseEntity.status(201).body(response);
     }

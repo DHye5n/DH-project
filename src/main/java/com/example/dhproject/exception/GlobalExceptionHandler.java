@@ -9,15 +9,22 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ClientErrorException.class)
-    public ResponseEntity<ApiResponseDto> handleClientError(ClientErrorException e) {
+    @ExceptionHandler(ErrorException.class)
+    public ResponseEntity<ApiResponseDto> handleError(ErrorException e) {
         return ResponseEntity.status(e.getStatus())
                 .body(new ApiResponseDto(false, e.getMessage(), null));
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponseDto> handleGeneralException(Exception e) {
+    public ResponseEntity<ApiResponseDto> handleException(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiResponseDto(false, "An unexpected error occurred.", null));
+                .body(new ApiResponseDto(false, "예상치 못한 오류가 발생했습니다.", null));
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponseDto> handleGeneralException(RuntimeException e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponseDto(false, "예상치 못한 오류가 발생했습니다.", null));
+    }
+
 }

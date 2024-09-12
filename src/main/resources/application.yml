@@ -1,19 +1,19 @@
 server:
-  port: 9991
+  port: 9992
 
 
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/dh_project?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ENC(XA0gffAsSgHSZJh617nnZQ==)
-    password: ENC(qKPAInArJkwfr7UViVRWmA==)
+    username: ENC(hjMovEvXslkNcBl8O/DATA==)
+    password: ENC(15rwtWiFfquvgJpwQsZEZw==)
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   mail:
     host: smtp.naver.com
     port: 587
-    username: ENC(tujEgTVMwnxdGrpHVuEQHmWwihdnjxiK6aNAwkqhrlw=)
-    password: ENC(LPk7ZlYhGLVf6Eup116wKGT36SgTiAvw)
+    username: ENC(DEcVaQgStkpM3sL2VvQ3jS5lMOOzBcR4jSdQS3LDoyY=)
+    password: ENC(n5E7A+TAUGIim46RzqpX3ARJdfgcHkft)
     properties:
       mail:
         smtp:
@@ -42,3 +42,7 @@ spring:
 logging:
   level:
     root: INFO
+
+
+jwt:
+  secret-key: X2NyYXNoX3NlcnZpY2Vfc3VwZXJfc2VjcmV0X2tldF8=
