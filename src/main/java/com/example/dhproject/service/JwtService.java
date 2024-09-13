@@ -24,7 +24,7 @@ public class JwtService {
 
     private String generateToken(String subject) {
         Date now = new Date();
-        Date exp = new Date(now.getTime() + (1000 * 60 * 60 * 3));
+        Date exp = new Date(now.getTime() + (1000 * 60 * 60 * 1));
         return Jwts.builder().subject(subject).signWith(key)
                 .issuedAt(now)
                 .expiration(exp)
