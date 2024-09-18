@@ -2,6 +2,7 @@ package com.example.dhproject.config;
 
 import com.example.dhproject.config.jwt.JwtAuthFilter;
 import com.example.dhproject.config.jwt.JwtExceptionFilter;
+import com.example.dhproject.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,8 +37,10 @@ public class SecurityConfig {
                                         "/register",
                                         "/api/public/members/send-verification-code",
                                         "/api/public/members/verify-code",
-                                        "/api/public/members/check-email").permitAll()
-                                .antMatchers("/api/admin/members/**").hasRole("ADMIN")
+                                        "/api/public/members/check-email")
+                                .permitAll()
+                                .antMatchers("/api/admin/members/**")
+                                .hasRole(Role.ADMIN.name())
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

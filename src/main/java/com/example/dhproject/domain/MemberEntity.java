@@ -14,7 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
-
+import java.util.List;
 
 
 @Entity
@@ -70,13 +70,13 @@ public class MemberEntity extends BaseTime implements UserDetails{
         this.zonecode = zonecode;
         this.address = address;
         this.addressDetail = addressDetail;
-        this.role = role != null ? role : Role.ROLE_USER;
+        this.role = role != null ? role : Role.USER;
     }
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role.getAuthority()));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
