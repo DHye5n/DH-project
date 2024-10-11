@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -23,13 +22,12 @@ import java.util.List;
     indexes = {@Index(name = "member_username_idx", columnList = "username", unique = true)}
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@SQLDelete(sql = "UPDATE member SET deleted_date = CURRENT_TIMESTAMP WHERE member_id = ?")
+@SQLDelete(sql = "UPDATE member SET deleted_date = CURRENT_TIMESTAMP WHERE memberid = ?")
 @Where(clause = "deleted_date IS NULL")
 public class MemberEntity extends BaseTime implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "member_id")
     private Long memberId;
 
     @Column(length = 30, nullable = false, unique = true)
