@@ -50,6 +50,7 @@ public class PublicMemberRestController {
 
     @GetMapping("/username/{username}/exists")
     public ResponseEntity<ApiResponseDto> checkUsernameExists(@PathVariable String username) {
+        log.info("Checking availability for username: {}", username);
         ApiResponseDto response = memberService.checkUsername(username);
         return ResponseEntity.ok(response);
     }

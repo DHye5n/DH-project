@@ -230,9 +230,17 @@ document.addEventListener("DOMContentLoaded", function() {
     // Check username availability
     btnCheckId.addEventListener('click', function() {
         const username = document.getElementById('username').value;
+        console.log("Checking username:", username);
+
+        if (username.length < 3 || username.length > 10) {
+            alert("사용자 이름은 3자 이상 10자 이하이어야 합니다."); // "Username must be between 3 and 10 characters."
+            return;
+        }
 
         fetch(`/api/public/members/username/${encodeURIComponent(username)}/exists`)
-            .then(response => response.json())
+            .then(response => {
+                console.log("Response status:", response.status);
+                return response.json()})
             .then(data => {
                 const idCheckMessage = document.getElementById('idCheckMessage');
                 if (data.success) {

@@ -7,13 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.List;
 
 
 @Entity
@@ -24,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member SET deleted_date = CURRENT_TIMESTAMP WHERE memberid = ?")
 @Where(clause = "deleted_date IS NULL")
-public class MemberEntity extends BaseTime implements UserDetails{
+public class MemberEntity extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +34,7 @@ public class MemberEntity extends BaseTime implements UserDetails{
     @Column(length = 10, nullable = false, unique = true)
     private String username;
 
-    @Column(length = 11)
+    @Column(length = 11, nullable = false)
     private String phone;
 
     @Column(length = 10)
@@ -72,33 +67,4 @@ public class MemberEntity extends BaseTime implements UserDetails{
     }
 
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

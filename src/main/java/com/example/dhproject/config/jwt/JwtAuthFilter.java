@@ -1,7 +1,7 @@
 package com.example.dhproject.config.jwt;
 
+import com.example.dhproject.config.auth.PrincipalDetailsService;
 import com.example.dhproject.service.JwtService;
-import com.example.dhproject.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +24,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final MemberService memberService;
+    private final PrincipalDetailsService principalDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -40,7 +40,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 securityContext.getAuthentication() == null) {
             String accessToken = authorization.substring(BEARER_PREFIX.length());
             String username = jwtService.getUsername(accessToken);
-            UserDetails userDetails = memberService.loadUserByUsername(username);
+            UserDetails userDetails = principalDetailsService.loadUserByUsername(username);
             // 인증 객체 생성
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

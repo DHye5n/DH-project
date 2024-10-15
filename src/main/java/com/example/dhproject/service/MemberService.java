@@ -13,9 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class MemberService implements UserDetailsService {
+public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
@@ -45,12 +42,18 @@ public class MemberService implements UserDetailsService {
             throw new ErrorException("이미 사용중인 이메일입니다.", HttpStatus.CONFLICT);
         }
 
+        if (memberRepository.existsByUsername(dto.getUsername())) {
+            log.error("이미 사용 중인 사용자 이름입니다. {}", dto.getUsername());
+            throw new ErrorException("이미 사용 중인 사용자 아이디입니다.", HttpStatus.CONFLICT);
+        }
+
         if (!dto.isPasswordMatching()) {
             log.error("비밀번호가 일치하지 않습니다. {}", dto.getPassword());
             throw new ErrorException("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
+
         MemberEntity member = MemberRequestRegisterDto.toEntity(
                 dto.getEmail(),
                 encodedPassword,
@@ -112,15 +115,11 @@ public class MemberService implements UserDetailsService {
 
 
     public ApiResponseDto checkUsername(String username) {
+
+        log.info("Checking availability for username: {}", username);
+
         boolean exists = memberRepository.existsByUsername(username);
         String message = exists ? "사용자 이름이 이미 사용 중입니다." : "사용자 이름이 사용 가능합니다.";
         return new ApiResponseDto(!exists, message, null);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("Loading user by username: {}", username);
-        return memberRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

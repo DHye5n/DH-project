@@ -31,14 +31,12 @@ public class SecurityConfig {
 
                 .authorizeRequests(authorizeRequests ->
                         authorizeRequests
-                                .antMatchers("/css/**", "/js/user/**", "/images/**", "/plugins/**").permitAll()
-                                .antMatchers(
-                                        "/api/pubic/members/**",
+                                .antMatchers("/css/**", "/js/user/**", "/images/**", "/plugins/**",
                                         "/register",
+                                        "/api/public/members/**",
                                         "/api/public/members/send-verification-code",
                                         "/api/public/members/verify-code",
-                                        "/api/public/members/check-email")
-                                .permitAll()
+                                        "/api/public/members/check-email").permitAll()
                                 .antMatchers("/api/admin/members/**")
                                 .hasRole(Role.ADMIN.name())
                                 .anyRequest().authenticated()
