@@ -1,13 +1,13 @@
-package com.example.dhproject.dto.request;
+package com.example.dhproject.dto.request.member;
 
 
 import com.example.dhproject.domain.MemberEntity;
+import com.example.dhproject.dto.request.EmailCodeRequestDto;
 import com.example.dhproject.enums.Role;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -48,7 +48,6 @@ public class MemberRequestRegisterDto {
 
     private Role role = Role.USER;
 
-    @Column(name = "vertification_code")
     private String verificationCode;
 
     @Builder
@@ -70,17 +69,23 @@ public class MemberRequestRegisterDto {
         return this.password.equals(this.passwordCheck);
     }
 
-    public static MemberEntity toEntity(String email, String password, String username, String phone,
-                                        String zonecode, String address, String addressDetail, Role role) {
+    public EmailCodeRequestDto toEmailCodeRequestDto() {
+        return EmailCodeRequestDto.builder()
+                .email(this.getEmail())
+                .verificationCode(this.getVerificationCode())
+                .build();
+    }
+
+    public MemberEntity toEntity(String encodedPassword) {
         return MemberEntity.builder()
                 .email(email)
-                .password(password)
+                .password(encodedPassword)
                 .username(username)
                 .phone(phone)
                 .zonecode(zonecode)
                 .address(address)
                 .addressDetail(addressDetail)
-                .role(role)
+                .role(role != null ? role : Role.USER) // Default role as USER
                 .build();
     }
 }

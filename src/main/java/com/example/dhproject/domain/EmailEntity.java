@@ -41,4 +41,5 @@ public class EmailEntity {
     public boolean isCodeValid(String code) {
         return this.verificationCode.equals(code);
     }
+
 }

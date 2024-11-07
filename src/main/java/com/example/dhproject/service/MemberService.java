@@ -1,7 +1,7 @@
 package com.example.dhproject.service;
 
 import com.example.dhproject.domain.MemberEntity;
-import com.example.dhproject.dto.request.MemberRequestRegisterDto;
+import com.example.dhproject.dto.request.member.MemberRequestRegisterDto;
 import com.example.dhproject.dto.response.ApiResponseDto;
 import com.example.dhproject.dto.response.MemberResponseDto;
 import com.example.dhproject.exception.ErrorException;
@@ -54,18 +54,10 @@ public class MemberService {
 
         String encodedPassword = passwordEncoder.encode(dto.getPassword());
 
-        MemberEntity member = MemberRequestRegisterDto.toEntity(
-                dto.getEmail(),
-                encodedPassword,
-                dto.getUsername(),
-                dto.getPhone(),
-                dto.getZonecode(),
-                dto.getAddress(),
-                dto.getAddressDetail(),
-                dto.getRole()
-        );
+        MemberEntity member = dto.toEntity(encodedPassword);
 
         memberRepository.save(member);
+
         return new ApiResponseDto(true, "회원가입이 완료되었습니다.", null);
     }
 

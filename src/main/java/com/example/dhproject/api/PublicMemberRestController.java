@@ -1,7 +1,7 @@
 package com.example.dhproject.api;
 
 import com.example.dhproject.dto.request.EmailCodeRequestDto;
-import com.example.dhproject.dto.request.MemberRequestRegisterDto;
+import com.example.dhproject.dto.request.member.MemberRequestRegisterDto;
 import com.example.dhproject.dto.response.ApiResponseDto;
 import com.example.dhproject.service.EmailCodeService;
 import com.example.dhproject.service.MemberService;
@@ -28,8 +28,10 @@ public class PublicMemberRestController {
     }
 
     @PostMapping("/verify-code")
-    public ResponseEntity<ApiResponseDto> verifyCode(@RequestBody EmailCodeRequestDto dto) {
+    public ResponseEntity<ApiResponseDto> verifyCode(@Valid @RequestBody EmailCodeRequestDto dto) {
+
         boolean isCodeValid = emailCodeService.verifyCode(dto.getEmail(), dto.getVerificationCode());
+
         if (isCodeValid) {
             return ResponseEntity.ok(new ApiResponseDto(true, "인증 코드가 확인되었습니다.", null));
         }

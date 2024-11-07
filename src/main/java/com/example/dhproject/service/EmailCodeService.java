@@ -37,26 +37,43 @@ public class EmailCodeService {
         emailCodeRepository.save(emailEntity);
     }
 
+
     @Transactional
     public boolean verifyCode(String email, String code) {
+
         Optional<EmailEntity> codeEntityOpt = emailCodeRepository.findByEmailAndVerificationCode(email, code);
+
         if (codeEntityOpt.isEmpty()) {
-            log.warn("이메일 {}에 대한 인증 코드가 존재하지 않거나 코드가 일치하지 않습니다.", email);
+            log.warn("DB에 저장된 이메일: {}", email);
             return false;
         }
 
         EmailEntity emailEntity = codeEntityOpt.get();
+
+        String verificationCode = emailEntity.getVerificationCode();
+
+
+        log.info("이메일: {}, 입력된 인증번호: {}, DB에 저장된 인증번호: {}",
+                email, code, verificationCode);
+
         boolean isExpired = emailEntity.isExpired();
         boolean isCodeValid = emailEntity.isCodeValid(code);
 
-        log.info("검증 중: 이메일 = {}, 입력된 코드 = {}, 저장된 코드 = {}, 만료일 = {}, 코드 유효 여부 = {}, 만료 여부 = {}",
-                email, code, emailEntity.getVerificationCode(), emailEntity.getExpiryDate(), isCodeValid, isExpired);
 
-        if (isExpired || !isCodeValid) {
-            log.warn("이메일 {}의 인증 코드가 유효하지 않거나 만료되었습니다.", email);
+        log.info("이메일: {}, 인증 유효성: {}, 만료 여부: {}, 만료 시간: {}",
+                email, isCodeValid, isExpired, emailEntity.getExpiryDate());
+
+        if (isExpired) {
+            log.warn("이메일: {} - 인증 번호 만료.", email);
+            return false;
         }
 
-        return !isExpired && isCodeValid;
+        if (!isCodeValid) {
+            log.warn("이메일: {} - 인증 번호가 일치하지 않습니다.", email);
+            return false;
+        }
+
+        return true;
     }
 
     @Transactional

@@ -14,7 +14,10 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Table(name = "member",
-    indexes = {@Index(name = "member_username_idx", columnList = "username", unique = true)}
+    indexes = {
+            @Index(name = "member_username_idx", columnList = "username", unique = true),
+            @Index(name = "member_email_idx", columnList = "email", unique = true)
+    }
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLDelete(sql = "UPDATE member SET deleted_date = CURRENT_TIMESTAMP WHERE memberid = ?")

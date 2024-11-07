@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .catch(error => {
                 console.error("Error:", error);
-                verificationCodeMessage.textContent = "인증 코드 확인 중 오류가 발생했습니다.";
+                verificationCodeMessage.textContent = "인증 코드가 일치하지 않습니다.";
                 verificationCodeMessage.style.color = "red";
                 verificationCodeMessage.classList.remove('d-none');
             });

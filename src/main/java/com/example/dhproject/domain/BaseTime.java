@@ -1,5 +1,6 @@
 package com.example.dhproject.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -13,16 +14,27 @@ import java.time.LocalDateTime;
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class BaseTime {
+public abstract class BaseTime {
 
+    @JsonFormat(pattern = "yy-MM-dd HH:mm:ss")
     @CreatedDate
     @Column(name = "created_date", nullable = false, updatable = false)
-    private LocalDateTime createdDate;
+    protected LocalDateTime createdDate;
 
+//    @CreatedBy
+//    @Column(nullable = false, updatable = false)
+//    protected String createdBy;
+
+    @JsonFormat(pattern = "yy-MM-dd HH:mm:ss")
     @LastModifiedDate
-    @Column(name = "modified_date")
-    private LocalDateTime modifiedDate;
+    @Column(name = "modified_date", nullable = false)
+    protected LocalDateTime modifiedDate;
 
+//    @LastModifiedBy
+//    @Column(nullable = false)
+//    protected String modifiedBy;
+
+    @JsonFormat(pattern = "yy-MM-dd HH:mm:ss")
     @Column(name = "deleted_date")
-    private LocalDateTime deletedDate;
+    protected LocalDateTime deletedDate;
 }
